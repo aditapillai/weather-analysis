@@ -24,9 +24,15 @@ public class WeatherAppController {
         return this.service.getCityDetails();
     }
 
-    @GetMapping("/weather/cities/{city}")
-    public List<City> getWeatherDetails(@NotNull @PathVariable String city) {
-        return this.service.getWeatherDetails(city);
+    @GetMapping("/weather/cities/{city}/{year}/{month}/{date}")
+    public List<City> getWeatherDetails(@NotNull @PathVariable String city,
+            @NotNull @PathVariable Integer year,@NotNull @PathVariable Integer month,@NotNull @PathVariable Integer date) {
+        return this.service.populateWeatherDetails(city,year,month,date);
+    }
+
+    @GetMapping("/weather/cities/{year}/{month}/{date}")
+    public List<City> getWeatherDetails(@NotNull @PathVariable Integer year,@NotNull @PathVariable Integer month,@NotNull @PathVariable Integer date) {
+        return this.service.populateWeatherDetails(year,month,date);
     }
 
     @Autowired

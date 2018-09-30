@@ -49,22 +49,31 @@ public class WeatherAppService {
                              .collect(Collectors.toList());
     }
 
-    public List<City> getWeatherDetails(String cityName) {
+    public List<City> populateWeatherDetails(String cityName, Integer year, Integer month, Integer date) {
         List<City> cityDetails = this.getCityDetails(cityName);
         cityDetails.parallelStream()
-                   .map(this::getWeatherDetails)
+                   .map(city -> this.populateWeatherDetails(city,year,month,date))
                    .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
 
         return cityDetails;
     }
 
-    private City getWeatherDetails(City city) {
+    public List<City> populateWeatherDetails(Integer year, Integer month, Integer date) {
+        List<City> cityDetails = this.getCityDetails();
+        cityDetails.parallelStream()
+                   .map(city -> this.populateWeatherDetails(city,year,month,date))
+                   .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
+
+        return cityDetails;
+    }
+
+    private City populateWeatherDetails(City city, Integer year, Integer month, Integer date) {
 
         ResponseEntity<List<Weather>> response = this.httpClient.exchange(this.environment.getProperty(
                 "meta-weather-api.cityWeather"),
                 HttpMethod.GET,
                 null,
-                this.weatherListResponseType, city.getWoeid());
+                this.weatherListResponseType, city.getWoeid(),year,month,date);
         city.setWeatherData(response.getBody());
         return city;
     }
