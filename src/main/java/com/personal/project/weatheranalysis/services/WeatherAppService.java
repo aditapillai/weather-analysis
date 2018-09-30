@@ -19,24 +19,22 @@ import java.util.stream.Collectors;
 @Service
 public class WeatherAppService {
 
-    private RestTemplate httpClient;
-    private Environment environment;
-
-    private List<String> locations;
-
     private final ParameterizedTypeReference<List<Weather>> weatherListResponseType =
             new ParameterizedTypeReference<List<Weather>>() {
-    };
-
+            };
     private final ParameterizedTypeReference<List<City>> cityListResponseType =
-            new ParameterizedTypeReference<List<City>>() {};
+            new ParameterizedTypeReference<List<City>>() {
+            };
+    private RestTemplate httpClient;
+    private Environment environment;
+    private List<String> locations;
 
     public List<City> getCityDetails(String cityName) {
 
         ResponseEntity<List<City>> response = this.httpClient.exchange(this.environment.getProperty("meta-weather-api.cityLookup"),
                 HttpMethod.GET,
                 null,
-                this.cityListResponseType , cityName);
+                this.cityListResponseType, cityName);
 
         return response.getBody();
     }
@@ -52,7 +50,7 @@ public class WeatherAppService {
     public List<City> populateWeatherDetails(String cityName, int year, int month, int date) {
         List<City> cityDetails = this.getCityDetails(cityName);
         cityDetails.parallelStream()
-                   .map(city -> this.populateWeatherDetails(city,year,month,date))
+                   .map(city -> this.populateWeatherDetails(city, year, month, date))
                    .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
 
         return cityDetails;
@@ -61,7 +59,7 @@ public class WeatherAppService {
     public List<City> populateWeatherDetails(int year, int month, int date) {
         List<City> cityDetails = this.getCityDetails();
         cityDetails.parallelStream()
-                   .map(city -> this.populateWeatherDetails(city,year,month,date))
+                   .map(city -> this.populateWeatherDetails(city, year, month, date))
                    .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
 
         return cityDetails;
@@ -73,7 +71,7 @@ public class WeatherAppService {
                 "meta-weather-api.cityWeather"),
                 HttpMethod.GET,
                 null,
-                this.weatherListResponseType, city.getWoeid(),year,month,date);
+                this.weatherListResponseType, city.getWoeid(), year, month, date);
         city.setWeatherData(response.getBody());
         return city;
     }
@@ -92,6 +90,5 @@ public class WeatherAppService {
     public void setLocations(List<String> locations) {
         this.locations = locations;
     }
-
 
 }
