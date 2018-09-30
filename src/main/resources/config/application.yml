@@ -8,4 +8,4 @@ spring:
 
 meta-weather-api:
   cityLookup: https://www.metaweather.com/api/location/search/?query={city}
-  cityWeather: https://www.metaweather.com/api/location/search/?query={city}
+  cityWeather: https://www.metaweather.com/api/location/{woeid}/2018/09/22
