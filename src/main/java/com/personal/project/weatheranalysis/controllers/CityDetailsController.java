@@ -10,28 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-public class WeatherAppController {
+public class CityDetailsController {
     private WeatherAppService service;
-
-    @GetMapping("/cities/{city}")
-    public List<City> getCityDetails(@PathVariable String city) {
-        return this.service.getCityDetails(city);
-    }
 
     @GetMapping("/cities")
     public List<City> getCityDetails() {
         return this.service.getCityDetails();
     }
 
-    @GetMapping("/weather/cities/{city}/{year}/{month}/{date}")
-    public List<City> getWeatherDetails(@PathVariable String city,
-            @PathVariable int year, @PathVariable int month, @PathVariable int date) {
-        return this.service.populateWeatherDetails(city, year, month, date);
-    }
-
-    @GetMapping("/weather/cities/{year}/{month}/{date}")
-    public List<City> getWeatherDetails(@PathVariable int year, @PathVariable int month, @PathVariable int date) {
-        return this.service.populateWeatherDetails(year, month, date);
+    @GetMapping("/cities/{city}")
+    public List<City> getCityDetails(@PathVariable String city) {
+        return this.service.getCityDetails(city);
     }
 
     @Autowired
