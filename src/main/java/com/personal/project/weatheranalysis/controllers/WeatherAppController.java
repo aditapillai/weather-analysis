@@ -25,12 +25,12 @@ public class WeatherAppController {
 
     @GetMapping("/weather/cities/{city}/{year}/{month}/{date}")
     public List<City> getWeatherDetails(@PathVariable String city,
-            @PathVariable Integer year, @PathVariable Integer month, @PathVariable Integer date) {
+            @PathVariable int year, @PathVariable int month, @PathVariable int date) {
         return this.service.populateWeatherDetails(city, year, month, date);
     }
 
     @GetMapping("/weather/cities/{year}/{month}/{date}")
-    public List<City> getWeatherDetails(@PathVariable Integer year, @PathVariable Integer month, @PathVariable Integer date) {
+    public List<City> getWeatherDetails(@PathVariable int year, @PathVariable int month, @PathVariable int date) {
         return this.service.populateWeatherDetails(year, month, date);
     }
 

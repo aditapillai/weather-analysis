@@ -49,7 +49,7 @@ public class WeatherAppService {
                              .collect(Collectors.toList());
     }
 
-    public List<City> populateWeatherDetails(String cityName, Integer year, Integer month, Integer date) {
+    public List<City> populateWeatherDetails(String cityName, int year, int month, int date) {
         List<City> cityDetails = this.getCityDetails(cityName);
         cityDetails.parallelStream()
                    .map(city -> this.populateWeatherDetails(city,year,month,date))
@@ -58,7 +58,7 @@ public class WeatherAppService {
         return cityDetails;
     }
 
-    public List<City> populateWeatherDetails(Integer year, Integer month, Integer date) {
+    public List<City> populateWeatherDetails(int year, int month, int date) {
         List<City> cityDetails = this.getCityDetails();
         cityDetails.parallelStream()
                    .map(city -> this.populateWeatherDetails(city,year,month,date))
@@ -67,7 +67,7 @@ public class WeatherAppService {
         return cityDetails;
     }
 
-    private City populateWeatherDetails(City city, Integer year, Integer month, Integer date) {
+    private City populateWeatherDetails(City city, int year, int month, int date) {
 
         ResponseEntity<List<Weather>> response = this.httpClient.exchange(this.environment.getProperty(
                 "meta-weather-api.cityWeather"),
