@@ -15,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -71,13 +70,19 @@ public class WeatherAppService {
     }
 
     public List<City> getWeatherDetails(String cityName, int year, int month, int date) {
-        return Optional.ofNullable(cityName)
-                       .map(this::getCityDetails)
-                       .orElse(this.getCityDetails())
-                       .parallelStream()
-                       .map(city -> this.getWeatherDetails(city, year, month, date))
-                       .collect(Collectors.toList());
-
+        if (cityName == null) {
+            return this.locations.parallelStream()
+                          .map(this::getCityDetails)
+                          .map(Collection::stream)
+                          .flatMap(Function.identity())
+                          .map(city -> this.getWeatherDetails(city, year, month, date))
+                          .collect(Collectors.toList());
+        } else {
+           return this.getCityDetails(cityName)
+                .parallelStream()
+                .map(city -> this.getWeatherDetails(city, year, month, date))
+                .collect(Collectors.toList());
+        }
     }
 
     private City getWeatherDetails(City city, int year, int month, int date) {
