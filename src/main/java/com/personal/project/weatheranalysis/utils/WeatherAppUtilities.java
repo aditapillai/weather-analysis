@@ -12,4 +12,16 @@ public class WeatherAppUtilities {
                           .average()
                           .orElse(Double.NaN);
     }
+
+    public static String convertToDateString(int year, int month, int date) {
+        StringBuilder finalDate = new StringBuilder();
+
+        finalDate.append(year)
+                 .append("/")
+                 .append(month)
+                 .append("/")
+                 .append(date);
+        return finalDate.toString();
+    }
+
 }

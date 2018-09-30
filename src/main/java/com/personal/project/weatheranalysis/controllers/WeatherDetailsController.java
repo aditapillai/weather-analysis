@@ -13,6 +13,11 @@ import java.util.List;
 public class WeatherDetailsController {
     private WeatherAppService service;
 
+    @GetMapping("/weather/cities")
+    public List<City> getWeatherDetails() {
+        return this.service.getWeatherDetails();
+    }
+
     @GetMapping("/weather/cities/{year}/{month}/{date}")
     public List<City> getWeatherDetails(@PathVariable int year, @PathVariable int month, @PathVariable int date) {
         return this.service.getWeatherDetails(year, month, date);

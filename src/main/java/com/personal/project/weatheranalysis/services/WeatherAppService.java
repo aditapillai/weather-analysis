@@ -1,6 +1,8 @@
 package com.personal.project.weatheranalysis.services;
 
+import com.personal.project.weatheranalysis.models.AggregateTemperature;
 import com.personal.project.weatheranalysis.models.City;
+import com.personal.project.weatheranalysis.models.Date;
 import com.personal.project.weatheranalysis.models.Weather;
 import com.personal.project.weatheranalysis.utils.WeatherAppUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class WeatherAppService {
     private RestTemplate httpClient;
     private Environment environment;
     private List<String> locations;
+    private List<Date> dates;
 
     public List<City> getCityDetails() {
         return this.locations.parallelStream()
@@ -48,20 +51,33 @@ public class WeatherAppService {
         return response.getBody();
     }
 
+    public List<City> getWeatherDetails() {
+        return this.locations.parallelStream()
+                             .map(this::getCityDetails)
+                             .map(Collection::stream)
+                             .flatMap(Function.identity())
+                             .map(this::getWeatherDetails)
+                             .collect(Collectors.toList());
+    }
+
+    private City getWeatherDetails(City city) {
+        this.dates.forEach(date -> this.getWeatherDetails(city, date.getYear(), date.getMonth(), date.getDay()));
+        return city;
+    }
+
     public List<City> getWeatherDetails(int year, int month, int date) {
         String cityName = null;
         return this.getWeatherDetails(cityName, year, month, date);
     }
 
     public List<City> getWeatherDetails(String cityName, int year, int month, int date) {
-        List<City> cityDetails = Optional.ofNullable(cityName)
-                                         .map(this::getCityDetails)
-                                         .orElse(this.getCityDetails());
-        cityDetails.parallelStream()
-                   .map(city -> this.getWeatherDetails(city, year, month, date))
-                   .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
+        return Optional.ofNullable(cityName)
+                       .map(this::getCityDetails)
+                       .orElse(this.getCityDetails())
+                       .parallelStream()
+                       .map(city -> this.getWeatherDetails(city, year, month, date))
+                       .collect(Collectors.toList());
 
-        return cityDetails;
     }
 
     private City getWeatherDetails(City city, int year, int month, int date) {
@@ -72,6 +88,9 @@ public class WeatherAppService {
                 null,
                 this.weatherListResponseType, city.getWoeid(), year, month, date);
         city.setWeatherData(response.getBody());
+        city.getTemperatureData()
+            .add(new AggregateTemperature(WeatherAppUtilities.convertToDateString(year, month, date),
+                    WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
         return city;
     }
 
@@ -90,4 +109,8 @@ public class WeatherAppService {
         this.locations = locations;
     }
 
+    @Autowired
+    public void setDates(List<Date> dates) {
+        this.dates = dates;
+    }
 }
