@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,14 @@ public class WeatherAppService {
     private Environment environment;
     private List<String> locations;
 
+    public List<City> getCityDetails() {
+        return this.locations.parallelStream()
+                             .map(this::getCityDetails)
+                             .map(Collection::stream)
+                             .flatMap(Function.identity())
+                             .collect(Collectors.toList());
+    }
+
     public List<City> getCityDetails(String cityName) {
 
         ResponseEntity<List<City>> response = this.httpClient.exchange(this.environment.getProperty("meta-weather-api.cityLookup"),
@@ -39,33 +48,23 @@ public class WeatherAppService {
         return response.getBody();
     }
 
-    public List<City> getCityDetails() {
-        return this.locations.parallelStream()
-                             .map(this::getCityDetails)
-                             .map(Collection::stream)
-                             .flatMap(Function.identity())
-                             .collect(Collectors.toList());
+    public List<City> getWeatherDetails(int year, int month, int date) {
+        String cityName = null;
+        return this.getWeatherDetails(cityName, year, month, date);
     }
 
-    public List<City> populateWeatherDetails(String cityName, int year, int month, int date) {
-        List<City> cityDetails = this.getCityDetails(cityName);
+    public List<City> getWeatherDetails(String cityName, int year, int month, int date) {
+        List<City> cityDetails = Optional.ofNullable(cityName)
+                                         .map(this::getCityDetails)
+                                         .orElse(this.getCityDetails());
         cityDetails.parallelStream()
-                   .map(city -> this.populateWeatherDetails(city, year, month, date))
+                   .map(city -> this.getWeatherDetails(city, year, month, date))
                    .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
 
         return cityDetails;
     }
 
-    public List<City> populateWeatherDetails(int year, int month, int date) {
-        List<City> cityDetails = this.getCityDetails();
-        cityDetails.parallelStream()
-                   .map(city -> this.populateWeatherDetails(city, year, month, date))
-                   .forEach(city -> city.setAverage_temperature(WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
-
-        return cityDetails;
-    }
-
-    private City populateWeatherDetails(City city, int year, int month, int date) {
+    private City getWeatherDetails(City city, int year, int month, int date) {
 
         ResponseEntity<List<Weather>> response = this.httpClient.exchange(this.environment.getProperty(
                 "meta-weather-api.cityWeather"),

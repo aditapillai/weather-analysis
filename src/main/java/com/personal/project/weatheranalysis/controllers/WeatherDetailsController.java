@@ -15,13 +15,13 @@ public class WeatherDetailsController {
 
     @GetMapping("/weather/cities/{year}/{month}/{date}")
     public List<City> getWeatherDetails(@PathVariable int year, @PathVariable int month, @PathVariable int date) {
-        return this.service.populateWeatherDetails(year, month, date);
+        return this.service.getWeatherDetails(year, month, date);
     }
 
     @GetMapping("/weather/cities/{city}/{year}/{month}/{date}")
     public List<City> getWeatherDetails(@PathVariable String city,
             @PathVariable int year, @PathVariable int month, @PathVariable int date) {
-        return this.service.populateWeatherDetails(city, year, month, date);
+        return this.service.getWeatherDetails(city, year, month, date);
     }
 
     @Autowired
