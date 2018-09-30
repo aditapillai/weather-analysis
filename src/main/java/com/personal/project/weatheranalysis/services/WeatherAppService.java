@@ -64,37 +64,37 @@ public class WeatherAppService {
         return city;
     }
 
-    public List<City> getWeatherDetails(int year, int month, int date) {
+    public List<City> getWeatherDetails(int year, int month, int day) {
         String cityName = null;
-        return this.getWeatherDetails(cityName, year, month, date);
+        return this.getWeatherDetails(cityName, year, month, day);
     }
 
-    public List<City> getWeatherDetails(String cityName, int year, int month, int date) {
+    public List<City> getWeatherDetails(String cityName, int year, int month, int day) {
         if (cityName == null) {
             return this.locations.parallelStream()
                           .map(this::getCityDetails)
                           .map(Collection::stream)
                           .flatMap(Function.identity())
-                          .map(city -> this.getWeatherDetails(city, year, month, date))
+                          .map(city -> this.getWeatherDetails(city, year, month, day))
                           .collect(Collectors.toList());
         } else {
            return this.getCityDetails(cityName)
                 .parallelStream()
-                .map(city -> this.getWeatherDetails(city, year, month, date))
+                .map(city -> this.getWeatherDetails(city, year, month, day))
                 .collect(Collectors.toList());
         }
     }
 
-    private City getWeatherDetails(City city, int year, int month, int date) {
+    private City getWeatherDetails(City city, int year, int month, int day) {
 
         ResponseEntity<List<Weather>> response = this.httpClient.exchange(this.environment.getProperty(
                 "meta-weather-api.cityWeather"),
                 HttpMethod.GET,
                 null,
-                this.weatherListResponseType, city.getWoeid(), year, month, date);
+                this.weatherListResponseType, city.getWoeid(), year, month, day);
         city.setWeatherData(response.getBody());
         city.getTemperatureData()
-            .add(new AggregateTemperature(WeatherAppUtilities.convertToDateString(year, month, date),
+            .add(new AggregateTemperature(WeatherAppUtilities.convertToDateString(year, month, day),
                     WeatherAppUtilities.computeAverageTemperature(city.getWeatherData())));
         return city;
     }
