@@ -1,3 +1,6 @@
+server:
+  port: 9088
+
 spring:
   mvc:
     servlet:
