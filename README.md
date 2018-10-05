@@ -15,3 +15,5 @@ The application itself is written using spring-boot and has the following endpoi
     5: /weather/cities/{city}/{year}/{month}/{day} : to fetch the average temperature of a specified city on a specified date.
 
 The default cities and dates are picked up from resources/store/locations.txt and resources/store/dates.txt respectively when the application boots.
+
+It's deployed to https://personal-weather-analysis.herokuapp.com
